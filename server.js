@@ -1,7 +1,7 @@
 const express = require("express");
 const dotenv = require("dotenv");
-const colors = require("colors");
 const connectDb = require("./config/db");
+const color = require("colors");
 
 // route
 const bootcamps = require("./routes/bootcamps");
@@ -31,7 +31,6 @@ app.use("/api/v1/bootcamps", bootcamps);
 app.use(errorHandler);
 
 const PORT = process.env.PORT || 5000;
-
 const server = app.listen(
   PORT,
   console.log(
