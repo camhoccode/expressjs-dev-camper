@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const slugify = require("slugify");
-const geocoder = require("../utils/geocoder");
+// const geocoder = require("../utils/geocoder");
+const { default: axios } = require("axios");
 
 const BootcampSchema = new mongoose.Schema({
   name: {
@@ -109,23 +110,33 @@ BootcampSchema.pre("save", function (next) {
 });
 
 // geo coder and create location field
-// BootcampSchema.pre("save", async function (next) {
-//   const loc = await geocoder.geocode(this.address);
-//   this.location = {
-//     type: "Point",
-//     coordinates: [loc[0].longitude, loc[0].latitude],
-//     formattedAddress: loc[0].formattedAddress,
-//     streetName: loc[0].streetName,
-//     streetNumber: loc[0].streetNumber,
-//     city: loc[0].city,
-//     state: loc[0].stateCode,
-//     zipCode: loc[0].zipCode,
-//     countryCode: loc[0].countryCode,
-//     country: loc[0].country,
-//   };
-//   // do not save address in db
-//   this.address = undefined;
-//   next();
-// });
+BootcampSchema.pre("save", async function (next) {
+  const encodedAddress = encodeURIComponent(this.address);
+  try {
+    const response = await axios.get(
+      `https://api.opencagedata.com/geocode/v1/json?q=${encodedAddress}&key=${process.env.GEOCODER_API_KEY}`
+    );
+    // console.log("response", response.data.results[0].annotations);
+    const loc = response.data.results[0];
+
+    this.location = {
+      type: "Point",
+      coordinates: [loc.geometry.lng, loc.geometry.lat],
+      formattedAddress: loc.formatted,
+      streetName: loc.components.road,
+      streetNumber: loc.components.house_number,
+      state: loc.components.state,
+      zipCode: loc.components.postcode,
+      city: loc.components.town,
+      countryCode: loc.components.country_code,
+      country: loc.components.country,
+    };
+  } catch (error) {
+    console.log(error);
+  }
+  // do not save address in db
+  this.address = undefined;
+  next();
+});
 
 module.exports = mongoose.model("Bootcamp", BootcampSchema);
