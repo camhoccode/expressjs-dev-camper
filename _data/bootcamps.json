@@ -62,8 +62,7 @@
     "housing": false,
     "jobAssistance": true,
     "jobGuarantee": true,
-    "acceptGi": true,
-    "averageCost": 9000
+    "acceptGi": true
   },
   {
     "_id": "5d725a1b7b292f5f8ceff788",
@@ -83,8 +82,7 @@
     "housing": false,
     "jobAssistance": true,
     "jobGuarantee": true,
-    "acceptGi": true,
-    "averageCost": 12000
+    "acceptGi": true
   },
   {
     "_id": "5d725a1b7b292f5f8ceff778",
@@ -104,7 +102,6 @@
     "housing": false,
     "jobAssistance": true,
     "jobGuarantee": true,
-    "acceptGi": true,
-    "averageCost": 22000
+    "acceptGi": true
   }
 ]

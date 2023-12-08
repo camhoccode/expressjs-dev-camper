@@ -38,10 +38,15 @@ const CourseSchema = new mongoose.Schema(
     bootcamp: {
       type: mongoose.Schema.ObjectId,
       ref: "Bootcamp",
-      required: [true],
+      required: true,
     },
-  },
-  { collection: "courses" }
+  }
+  // { collection: "courses" }
 );
+
+// get average cost after saved
+CourseSchema.post("save", async (err) => {});
+// get average cost before removed
+CourseSchema.pre("remove", async (err) => {});
 
 module.exports = mongoose.model("Course", CourseSchema);

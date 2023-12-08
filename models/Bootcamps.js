@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const slugify = require("slugify");
 // const geocoder = require("../utils/geocoder");
 const { default: axios } = require("axios");
+const Course = require("./Course");
 
 const BootcampSchema = new mongoose.Schema(
   {
@@ -106,18 +107,14 @@ const BootcampSchema = new mongoose.Schema(
   {
     toJSON: { virtuals: true },
     toObject: { virtuals: true },
-    collection: "bootcamps",
+    // collection: "bootcamps",
   }
 );
 
-// create bootcamp slug from name
-BootcampSchema.pre("save", function (next) {
-  this.slug = slugify(this.name, { lower: true });
-  next();
-});
-
-// geo coder and create location field
 BootcampSchema.pre("save", async function (next) {
+  // create bootcamp slug from name
+  this.slug = slugify(this.name, { lower: true });
+  // geo coder and create location field
   const encodedAddress = encodeURIComponent(this.address);
   try {
     const response = await axios.get(
@@ -147,12 +144,16 @@ BootcampSchema.pre("save", async function (next) {
 });
 
 // cascade delete courses when bootcamp deleted
-BootcampSchema.pre("deleteOne", { document: true }, async function (next) {
-  console.log(`Courses being removed from bootcamp ${this._id}`);
-  await this.model("Course").deleteMany({
-    bootcamp: this._id,
-  });
-  next();
+BootcampSchema.pre("deleteOne", async function (next) {
+  try {
+    console.log(`Courses being removed from bootcamp ${this._id} checking`);
+    await this.model("Course").deleteMany({
+      bootcamp: this._id,
+    });
+    next();
+  } catch (error) {
+    console.log(error);
+  }
 });
 
 // reverse populate with virtuals
