@@ -3,11 +3,13 @@ const dotenv = require("dotenv");
 const connectDb = require("./config/db");
 const color = require("colors");
 const path = require("path");
+const cookieParser = require("cookie-parser");
 const fileupload = require("express-fileupload");
 
 // route
 const bootcamps = require("./routes/bootcamps");
 const courses = require("./routes/courses");
+const auth = require("./routes/auth");
 // middleware
 const morgan = require("morgan");
 const errorHandler = require("./middleware/error");
@@ -19,6 +21,9 @@ dotenv.config({ path: "./config/config.env" });
 connectDb();
 
 const app = express();
+
+// use cookie parser
+app.use(cookieParser());
 
 // body parser
 app.use(express.json());
@@ -35,6 +40,7 @@ app.use(express.static(path.join(__dirname, "public")));
 // mount router
 app.use("/api/v1/bootcamps", bootcamps);
 app.use("/api/v1/courses", courses);
+app.use("/api/v1/auth", auth);
 // dev error handler
 app.use(errorHandler);
 
