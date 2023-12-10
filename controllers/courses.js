@@ -1,5 +1,6 @@
 const Course = require(".././models/Course");
 const asyncHandlerErr = require("../middleware/asyncCatchErr");
+const Bootcamps = require("../models/Bootcamps");
 const ErrorResponse = require("../utils/errorResponse");
 
 // @desc get all courses or courses for certain bootcamps
@@ -46,8 +47,27 @@ exports.getCourse = asyncHandlerErr(async (req, res, next) => {
 // @access private
 exports.postCourse = asyncHandlerErr(async (req, res, next) => {
   let course;
+  req.body.user = req.user.id;
   if (req.params.bootcampId) {
     req.body["bootcamp"] = req.params.bootcampId;
+    const bootcamp = await Bootcamps.findById(req.params.bootcampId);
+    if (!bootcamp) {
+      return next(
+        new ErrorResponse(
+          `Bootcamp not found with id of ${req.params.bootcampId}`,
+          404
+        )
+      );
+    }
+    // make sure user own bootcamp
+    if (bootcamp.user.toString() !== req.user.id && req.user.role !== "admin") {
+      return next(
+        new ErrorResponse(
+          `User ${req.user.id} not authorised to post course to this bootcamp ${req.params.bootcampId}`,
+          401
+        )
+      );
+    }
     course = await Course.create(req.body);
   } else {
     next(new ErrorResponse(`Please add bootcamp id in the request`));
@@ -69,7 +89,16 @@ exports.updateCourse = asyncHandlerErr(async (req, res, next) => {
   if (!course) {
     return next(new ErrorResponse(`Invalid course id in the request`));
   }
-  course = await Course.findByIdAndUpdate(req.params.id, req.body, {
+  // make sure user own course
+  if (course.user.toString() !== req.user.id && req.user.role !== "admin") {
+    return next(
+      new ErrorResponse(
+        `User ${req.user.id} not authorised to update course, id course: ${req.params.id}`,
+        401
+      )
+    );
+  }
+  course = await Course.findOneAndUpdate({ _id: req.params.id }, req.body, {
     new: true,
     runValidators: true,
   });
