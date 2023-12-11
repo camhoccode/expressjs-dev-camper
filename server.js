@@ -5,6 +5,12 @@ const color = require("colors");
 const path = require("path");
 const cookieParser = require("cookie-parser");
 const fileupload = require("express-fileupload");
+const mongoSanitize = require("express-mongo-sanitize");
+const helmet = require("helmet");
+const xss = require("xss-clean");
+const rateLimit = require("express-rate-limit");
+const hpp = require("hpp");
+const cors = require("cors");
 
 // route
 const bootcamps = require("./routes/bootcamps");
@@ -29,6 +35,27 @@ app.use(cookieParser());
 
 // body parser
 app.use(express.json());
+
+// prevent sql injection
+app.use(mongoSanitize());
+// Use Helmet to add security to headers
+app.use(helmet());
+// prevent xss attack
+app.use(xss());
+// prevent attack: http parameter pollution
+app.use(hpp());
+// enable cors
+app.use(cors());
+
+const limiter = rateLimit({
+  windowMs: 10 * 60 * 1000, // 10 minutes
+  limit: 100, // Limit each IP to 100 requests per `window` (here, per 15 minutes).
+  standardHeaders: "draft-7", // draft-6: `RateLimit-*` headers; draft-7: combined `RateLimit` header
+  legacyHeaders: false, // Disable the `X-RateLimit-*` headers.
+  // store: ... , // Use an external store for consistency across multiple server instances.
+});
+// Apply the rate limiting middleware to all requests.
+app.use(limiter);
 
 // dev logging middleware
 if (process.env.NODE_ENV === "development") {
