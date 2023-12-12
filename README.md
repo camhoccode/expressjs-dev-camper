@@ -1,7 +1,7 @@
 # expressjs-dev-camper
 # Node.js Express API for Bootcamps
 
-Backend for a bootcamp directory website. All of the functionality below is fully implmented in this project.
+Backend for a bootcamp directory website. All of the functionality below is fully implemented in this project.
 
 ### Tech stack
 - Nodejs, Expressjs
