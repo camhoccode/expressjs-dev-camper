@@ -104,3 +104,5 @@ Backend for a bootcamp directory website. All of the functionality below is full
 - Add html files as the / route for the api
 
 ## Deployment (Render)
+- Api: https://dev-camper-express.onrender.com/
+- Doc: https://documenter.getpostman.com/view/26101767/2s9YkhhjgT#8f3e8246-9461-4211-9481-67e79a3829cf
